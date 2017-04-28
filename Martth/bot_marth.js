@@ -1,3 +1,5 @@
+//here we go spaghetti code!
+
 const Discord = require('discord.js');
 const bot = new Discord.Client();
 const utils = require('./utils.js');
@@ -12,6 +14,52 @@ const punishedRole = settings.punishedRole;
 let punished = new Map();
 
 const commands = {
+    'help': (msg) => {
+        msg.channel.sendEmbed({
+            color: 13517556,
+            title: ':exclamation: Current Commands',
+            description: '===============',
+            fields: [{
+                name: '$ping',
+                value: '*pong*'
+            },
+            {
+                name: '$setgame',
+                value: "Sets the bot's game\n*$setgame <Game Name>*"
+            },
+            {
+                name: '$ban',
+                value: 'Bans the Guild Member\n*$ban <@name>*'
+            },
+            {
+                name: '$prune',
+                value: 'Deletes previous messages\n*$prune <number>*'
+            },
+            {
+                name: '$punish',
+                value: 'Prevent a Guild Member from Talking\n*$punish <@name>*'
+            },
+            {
+                name: '$unpunish',
+                value: 'Allowes a Punished Guild Member To Talk\n*$unpunish <@name>*'
+            },
+            {
+                name: '$8ball',
+                value: 'Ask the magic 8Ball A Question!\n*$8ball <Question>*'
+            },
+            {
+                name: '$insult',
+                value: 'Fuck off'
+            },
+            {
+                name: '$roulette',
+                value: 'fuckin guess.'
+            }]
+        })
+    },
+
+
+
     'ping': (msg) => {
         msg.channel.send("`" + bot.ping + "ms`"); //sends the bot's ping to to servers
         console.log("Bot's ping is " + bot.ping + "ms");
@@ -80,59 +128,16 @@ const commands = {
             utils.unpunish(msg.guild, msg.mentions.users.first());
         }
     },
-    'help': (msg) => {
-        msg.channel.sendEmbed({
-            color: 13517556,
-            title: ':exclamation: Current Commands',
-            description: '===============',
-            fields: [{
-                name: '$ping',
-                value: '*pong*'
-            },
-            {
-                name: '$setgame',
-                value: "Sets the bot's game\n*$setgame <Game Name>*"
-            },
-            {
-                name: '$ban',
-                value: 'Bans the Guild Member\n*$ban <@name>*'
-            },
-            {
-                name: '$prune',
-                value: 'Deletes previous messages\n*$prune <number>*'
-            },
-            {
-                name: '$punish',
-                value: 'Prevent a Guild Member from Talking\n*$punish <@name>*'
-            },
-            {
-                name: '$unpunish',
-                value: 'Allowes a Punished Guild Member To Talk\n*$unpunish <@name>*'
-            },
-            {
-                name: '$8ball',
-                value: 'Ask the magic 8Ball A Question!\n*$8ball <Question>*'
-            },
-            {
-                name: '$insult',
-                value: 'Fuck off'
-            },
-            {
-                name: '$roulette',
-                value: 'fuckin guess.'
-            }]
-        })
-    },
     'say': (msg, argresult) => {
         var msgs = msg.content;
         msg.channel.send(argresult);
     },
     '8ball': (msg, argresult) => {
-        var answer = ['yes', 'no', 'idk', 'maybe', 'nah im good', 'fuck no', 'Hell naw'];
+        var answer = ['yes', 'no', 'idk', 'could be', 'nah im good', 'nah', 'ofc dude'];
         var randAns = answer[Math.floor(Math.random() * answer.length)];
         msg.channel.send(randAns);
     },
-    'insult': (msg) => {
+    /*'insult': (msg) => {
         var rand = [
             'Happy Birthday!\nI hope you die of starvation in a wheelchair with 2 flat tires.',
             'You were born on a highway\ncause that\'s where most accidents happen',
@@ -142,23 +147,18 @@ const commands = {
             'Your mother has accumulated so much mass that she has successfully created a closed timelike curve!'
         ];
         var randomSent = rand[Math.floor(Math.random() * rand.length)];
-        if(!msg.channel.id === "306148902938345473"){
-            msg.channel.send("Use the #insults Channel");
-        }
-        else
-        if (msg.channel.id === "306148902938345473") {
-                msg.channel.send(randomSent);
-            }
-    },
+        msg.channel.send(randomSent);
+    },*/
     'roulette': (msg) => {
         if(chamber-- <= 0) {
             chamber = Math.floor(Math.random() * 6);
-            var kill = ["You got shot, you get fucked.", "lmao get rekt", "\"omg die\" -Rabbit (you died)", "The bullet missed you, but you panicked and died.", "A furry leaps from the darkness and yiffs you in the butt!"];
-            var killSelect = kill[Math.floor(Math.random() * kill.length)];
-            if (msg.author.username === "Rabbit") {
-                killSelect = kill[4];
-            }
-            msg.channel.send(killSelect);
+            let Shot = new Discord.RichEmbed();
+            Shot.setColor("#FF332C");
+            Shot.addField(":exclamation:  BANG", msg.author.username + " Got Shot!", false);
+            Shot.addField("Result:", "Punishment!", false);
+            Shot.addField("Time:", "30 Seconds!");
+            Shot.setThumbnail(msg.author.avatarURL);
+            msg.channel.sendEmbed(Shot);
             utils.punish(msg.member);
             punished.set(msg.member.id, msg.member);
             setTimeout(function() {
@@ -166,10 +166,11 @@ const commands = {
                 punished.delete(msg.member.id);
             }, 60000);
         } else {
-            var live = ["Wew, you lived!" , "You are dumb and aimed the gun backwards, the bullet hit Marth instead of you.", "You pull the trigger, but the revolver jams. You live to see another day.", "You pulled the trigger gun malfunctioned, count your blessings", "You didn't get shot :FeelsBetrayedMan: try again my dude."];
+            var live = settings.rouletteLive;
             var liveSelect = live[Math.floor(Math.random() * live.length)];
             if (msg.author.username === "Rabbit") {
-                liveSelect = "You pull the trigger, but the reolver jams. A pair of eyes glisten at you from the shadows.";
+                var furry = settings.rouletteFurry;
+                liveSelect += " " + furry[Math.floor(Math.random() * furry.length)];
             }
             msg.channel.send(liveSelect);
         }
