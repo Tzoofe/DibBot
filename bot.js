@@ -11,17 +11,21 @@ const commands = {
         console.log("Bot's ping is " + bot.ping + "ms");
     },
     'setgame': (msg, argresult) => {
-        bot.user.setGame(argresult);
-        msg.guild.channels.find("name", "log").sendEmbed({
-            color: 3447003,
-            title: ':exclamation: Change was made!',
-            description: 'nice',
-            fields: [{
-                name: ':video_game: Game Change',
-                value: 'Game was set to **' + argresult + "** by " + msg.author.username
-            }]
-        })
-        console.log("Game was set to " + argresult + " on " + msg.guild.name);
+        if (msg.member.hasPermission("MANAGE_GUILD")) {
+            bot.user.setGame(argresult);
+            msg.guild.channels.find("name", "log").sendEmbed({
+                color: 3447003,
+                title: ':exclamation: Change was made!',
+                description: 'nice',
+                fields: [{
+                    name: ':video_game: Game Change',
+                    value: 'Game was set to **' + argresult + "** by " + msg.author.username
+                }]
+            })
+            console.log("Game was set to " + argresult + " on " + msg.guild.name);
+        }else{
+            msg.channel.send("no perms dude0");
+        }
     },
     'ban': (msg, argresult) => {
         if (msg.member.hasPermission("BAN_MEMBERS")) {
@@ -37,12 +41,12 @@ const commands = {
             console.log("User " + argresult + " was banned on " + msg.guild.name);
             msg.guild.member(msg.mentions.users.first()).ban();
         }else {
-            msg.channel.say("no perms dude0");
+            msg.channel.send("no perms dude0");
         }
     },
     'prune': (msg, argresult) => {
         if (msg.member.hasPermission("MANAGE_MESSAGES")) {
-            var number = parseInt(argresult);
+            var number = parseInt(argresult) + 1;
             if (number <= 0) return;
             if (number == 1) {
                 msg.channel.fetchMessages({limit: 1}).first().delete();
@@ -66,15 +70,21 @@ const commands = {
             console.log("Deleted");
         }
     }else {
-        msg.channel.say("no perms dude0");
+        msg.channel.send("no perms dude0");
     }
 
 },
     'punish': (msg) => {
-        msg.guild.member(msg.mentions.users.first()).addRole("306177632016531458");
+        if (msg.member.hasPermission("DEAFEN_MEMBERS")) {
+            msg.guild.member(msg.mentions.users.first()).addRole("306177632016531458");
+        }else {
+            msg.channel.send("no perms dude0");
+        }
     },
     'unpunish': (msg) => {
-        msg.guild.member(msg.mentions.users.first()).removeRole("306177632016531458");
+        if (msg.member.hasPermission("DEAFEN_MEMBERS")) {
+            msg.guild.member(msg.mentions.users.first()).removeRole("306177632016531458");
+        }
     },
     'help': (msg) => {
         msg.channel.sendEmbed({
@@ -111,7 +121,11 @@ const commands = {
             },
             {
                 name: '$insult',
-                value: 'Fuck off\n*$insult* **only works in #insults channel**'
+                value: 'Fuck off'
+            },
+            {
+                name: '$roulette',
+                value: 'fuckin guess.'
             }]
         })
     },
@@ -163,6 +177,7 @@ bot.on('ready', () => {
 })
 
 bot.on('message', msg => {
+    if (msg.author.bot) return;
     var prefix = "$";
     let args = msg.content.split(' ').slice(1);
     var argresult = args.join(' ');
@@ -170,3 +185,27 @@ bot.on('message', msg => {
     if (commands.hasOwnProperty(msg.content.toLowerCase().slice(prefix.length).split(' ')[0])) commands[msg.content.toLowerCase().slice(prefix.length).split(' ')[0]](msg, argresult);
 })
 bot.login(token);
+
+if (process.platform === "win32") {
+    var rl = require("readline").createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+
+    rl.on("SIGINT", function() {
+        process.emit("SIGINT");
+    });
+}
+
+process.on("SIGINT", function() {
+    punished.forEach(function(member) {
+        utils.unpunish(member);
+    });
+    setTimeout(function() {
+        process.exit();
+    }, 1500);
+});
+
+process.on("unhandledRejection", (err) => {
+    console.log("unhandled promise rejection: " + err.stack);
+});
