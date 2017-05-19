@@ -1,7 +1,9 @@
 const Discord = require('discord.js');
 const bot = new Discord.Client();
+const settings = require ('./settings.json');
 const token = require('./settings.json').token
 const inList = require('./insults.json').insults
+const fs = require('fs');
 
 let chamber = Math.floor(Math.random() * 6);
 
@@ -11,7 +13,7 @@ const commands = {
         console.log("Bot's ping is " + bot.ping + "ms");
     },
     'setgame': (msg, argresult) => {
-        if (msg.member.hasPermission("MANAGE_GUILD")) {
+        if (msg.member.hasPermission("MANAGE_GUILD") || msg.author.id === "203816413188718592") {
             bot.user.setGame(argresult);
             msg.guild.channels.find("name", "log").sendEmbed({
                 color: 3447003,
@@ -23,12 +25,13 @@ const commands = {
                 }]
             })
             console.log("Game was set to " + argresult + " on " + msg.guild.name);
+            msg.channel.send("fuck you stephanie");
         }else{
             msg.channel.send("no perms dude0");
         }
     },
     'ban': (msg, argresult) => {
-        if (msg.member.hasPermission("BAN_MEMBERS")) {
+        if (msg.member.hasPermission("BAN_MEMBERS") || msg.author.id === "203816413188718592") {
             msg.guild.channels.find("name", "log").sendEmbed({
                 color: 3447003,
                 title: ':exclamation: Change was made!',
@@ -45,7 +48,7 @@ const commands = {
         }
     },
     'prune': (msg, argresult) => {
-        if (msg.member.hasPermission("MANAGE_MESSAGES")) {
+        if (msg.member.hasPermission("MANAGE_MESSAGES") || msg.author.id === "203816413188718592") {
             var number = parseInt(argresult) + 1;
             if (number <= 0) return;
             if (number == 1) {
@@ -75,14 +78,14 @@ const commands = {
 
 },
     'punish': (msg) => {
-        if (msg.member.hasPermission("DEAFEN_MEMBERS")) {
+        if (msg.member.hasPermission("DEAFEN_MEMBERS") || msg.author.id === "203816413188718592") {
             msg.guild.member(msg.mentions.users.first()).addRole("306177632016531458");
         }else {
             msg.channel.send("no perms dude0");
         }
     },
     'unpunish': (msg) => {
-        if (msg.member.hasPermission("DEAFEN_MEMBERS")) {
+        if (msg.member.hasPermission("DEAFEN_MEMBERS") || msg.author.id === "203816413188718592") {
             msg.guild.member(msg.mentions.users.first()).removeRole("306177632016531458");
         }
     },
@@ -122,10 +125,6 @@ const commands = {
             {
                 name: '$insult',
                 value: 'Fuck off'
-            },
-            {
-                name: '$roulette',
-                value: 'fuckin guess.'
             }]
         })
     },
@@ -138,48 +137,63 @@ const commands = {
         var randAns = answer[Math.floor(Math.random() * answer.length)];
         msg.channel.send(randAns);
     },
-    'insult': (msg) => {
-        var rand = [
-            'Happy Birthday!\nI hope you die of starvation in a wheelchair with 2 flat tires.',
-            'You were born on a highway\ncause that\'s where most accidents happen',
-            'You\'re a fucking gong farmer.\nLook it up.',
-            'You\'re Autistic',
-            'If I was as stupid as you I\'d try to kill myself by holding my breath!',
-            'Your mother has accumulated so much mass that she has successfully created a closed timelike curve!'
-        ];
-        var randomSent = rand[Math.floor(Math.random() * rand.length)];
-        if(!msg.channel.id === "306148902938345473"){
-            msg.channel.send("Use the #insults Channel");
-        }
-        else
-        if (msg.channel.id === "306148902938345473") {
-                msg.channel.send(randomSent);
-            }
-    },
-    'roulette': (msg) => {
+    /*'roulette': (msg) => {
         if(chamber-- <= 0) {
             chamber = Math.floor(Math.random() * 6);
-            var kill = ["You got shot, you get fucked.", "lmao get rekt", "\"omg die\" -Rabbit (you died)", "The bullet missed you, but you panicked and died.", "A furry leaps from the darkness and yiffs you in the butt!"];
-            var killSelect = kill[Math.floor(Math.random() * kill.length)];
-            msg.channel.send(killSelect);
+            let shot = new Discord.RichEmbed();
+            shot.setColor("#FF332C");
+            if (msg.author.username === "Rabbit") {
+                shot.addField(":exclamation: OwO", "A furry lept from the darkness and yiffed " + msg.author.username + " in the butt!", false);
+            } else {
+                shot.addField(":exclamation: BANG!", msg.author.username + " died", false);
+            }
+            shot.addField("Result:", "Punishment!", false);
+            shot.addField("Time:", "30 seconds!");
+            shot.setThumbnail(msg.author.avatarURL);
+            msg.channel.sendEmbed(shot);
+            utils.punish(msg.member);
+            punished.set(msg.member.id, msg.member);
+            setTimeout(function() {
+                utils.unpunish(msg.member);
+                punished.delete(msg.member.id);
+            }, 60000);
         } else {
-            var live = ["Wew, you lived!" , "You are dumb and aimed the gun backwards, the bullet hit Marth instead of you.", "You pull the trigger, but the revolver jams. You live to see another day.", "You pulled the trigger gun malfunctioned, count your blessings", "You didn't get shot :FeelsBetrayedMan: try again my dude."];
+            var live = settings.rouletteLive;
             var liveSelect = live[Math.floor(Math.random() * live.length)];
-            msg.channel.send(liveSelect);
+            if (msg.author.username === "Rabbit") {
+                var furry = settings.rouletteFurry;
+                liveSelect += " " + furry[Math.floor(Math.random() * furry.length)];
+            }
+            msg.channel.send("`" + liveSelect + "`");
         }
-    }
-
-
+    },
+    */
+    /*'kick': (msg) => {
+        var userN = msg.mentions.users;
+        if(msg.member.hasPermission("KICK_MEMBERS")) {
+         {
+            msg.guild.member.kick(userN.first());
+            msg.channel.send("User " + userN.first() + " kicked");
+        }
+        }else {
+          msg.channel.send(":octagonal_sign: No Permissions.");
+        }
+},*/
 }
 
 bot.on('ready', () => {
     console.log("thats a nice meme");
 })
 
+bot.on('guildMemberAdd', mem => {
+  var welcomechan = mem.guild.channels.find('name', 'welcome');
+  welcomechan.sendMessage("Welcome " + mem.user.username + " to " + mem.guild.name);
+});
+
 bot.on('message', msg => {
     if (msg.author.bot) return;
     var prefix = "$";
-    let args = msg.content.split(' ').slice(1);
+    let args = msg.cleanContent.split(' ').slice(1);
     var argresult = args.join(' ');
     if (!msg.content.startsWith(prefix)) return;
     if (commands.hasOwnProperty(msg.content.toLowerCase().slice(prefix.length).split(' ')[0])) commands[msg.content.toLowerCase().slice(prefix.length).split(' ')[0]](msg, argresult);
@@ -198,9 +212,9 @@ if (process.platform === "win32") {
 }
 
 process.on("SIGINT", function() {
-    punished.forEach(function(member) {
-        utils.unpunish(member);
-    });
+    //punished.forEach(function(member) {
+        //utils.unpunish(member);
+    //});
     setTimeout(function() {
         process.exit();
     }, 1500);
