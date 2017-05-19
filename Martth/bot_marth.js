@@ -49,17 +49,14 @@ const commands = {
             },
             {
                 name: '$insult',
-                value: 'Fuck off'
+                value: 'Very rude insults'
             },
             {
                 name: '$roulette',
-                value: 'fuckin guess.'
+                value: 'Google it, nerd'
             }]
         })
     },
-
-
-
     'ping': (msg) => {
         msg.channel.send("`" + bot.ping + "ms`"); //sends the bot's ping to to servers
         console.log("Bot's ping is " + bot.ping + "ms");
@@ -137,28 +134,25 @@ const commands = {
         var randAns = answer[Math.floor(Math.random() * answer.length)];
         msg.channel.send(randAns);
     },
-    /*'insult': (msg) => {
-        var rand = [
-            'Happy Birthday!\nI hope you die of starvation in a wheelchair with 2 flat tires.',
-            'You were born on a highway\ncause that\'s where most accidents happen',
-            'You\'re a fucking gong farmer.\nLook it up.',
-            'You\'re Autistic',
-            'If I was as stupid as you I\'d try to kill myself by holding my breath!',
-            'Your mother has accumulated so much mass that she has successfully created a closed timelike curve!'
-        ];
+    'insult': (msg) => {
+        var rand = settings.insults;
         var randomSent = rand[Math.floor(Math.random() * rand.length)];
         msg.channel.send(randomSent);
-    },*/
+    },
     'roulette': (msg) => {
         if(chamber-- <= 0) {
             chamber = Math.floor(Math.random() * 6);
-            let Shot = new Discord.RichEmbed();
-            Shot.setColor("#FF332C");
-            Shot.addField(":exclamation:  BANG", msg.author.username + " Got Shot!", false);
-            Shot.addField("Result:", "Punishment!", false);
-            Shot.addField("Time:", "30 Seconds!");
-            Shot.setThumbnail(msg.author.avatarURL);
-            msg.channel.sendEmbed(Shot);
+            let shot = new Discord.RichEmbed();
+            shot.setColor("#FF332C");
+            if (msg.author.username === "Rabbit") {
+                shot.addField(":exclamation: OwO", "A furry lept from the darkness and yiffed " + msg.author.username + " in the butt!", false);
+            } else {
+                shot.addField(":exclamation: BANG!", msg.author.username + " got shot!", false);
+            }
+            shot.addField("Result:", "Punishment!", false);
+            shot.addField("Time:", "30 seconds!");
+            shot.setThumbnail(msg.author.avatarURL);
+            msg.channel.sendEmbed(shot);
             utils.punish(msg.member);
             punished.set(msg.member.id, msg.member);
             setTimeout(function() {
